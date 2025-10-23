@@ -3,7 +3,6 @@ import {
   RateConfirmation,
   PurchaseOrder,
   Company,
-  Address,
 } from "../types";
 
 // Sample company data

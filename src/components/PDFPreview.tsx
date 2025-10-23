@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import { BlobProvider, PDFViewer } from "@react-pdf/renderer";
 import { Invoice, RateConfirmation, PurchaseOrder } from "../types";
 import {
   InvoiceTemplate,
@@ -31,8 +31,6 @@ export const PDFPreview: React.FC<PDFPreviewProps> = ({
         );
       case "purchaseOrder":
         return <PurchaseOrderTemplate purchaseOrder={data as PurchaseOrder} />;
-      default:
-        return null;
     }
   };
 
@@ -51,6 +49,8 @@ export const PDFPreview: React.FC<PDFPreviewProps> = ({
     }
   };
 
+  const document = renderDocument();
+
   return (
     <div className="mt-6">
       <div className="flex gap-4 mb-4">
@@ -60,19 +60,33 @@ export const PDFPreview: React.FC<PDFPreviewProps> = ({
         >
           {showPreview ? "Hide Preview" : "Show Preview"}
         </Button>
-        <PDFDownloadLink document={renderDocument()} fileName={getFileName()}>
-          {({ loading }) => (
-            <Button disabled={loading}>
-              {loading ? "Generating..." : "Download PDF"}
-            </Button>
-          )}
-        </PDFDownloadLink>
+        {document && (
+          <BlobProvider document={document}>
+            {({ blob, loading }) => (
+              <Button
+                disabled={loading || !blob}
+                onClick={() => {
+                  if (blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = window.document.createElement("a");
+                    link.href = url;
+                    link.download = getFileName();
+                    link.click();
+                    URL.revokeObjectURL(url);
+                  }
+                }}
+              >
+                {loading ? "Generating..." : "Download PDF"}
+              </Button>
+            )}
+          </BlobProvider>
+        )}
       </div>
 
-      {showPreview && (
+      {showPreview && document && (
         <div className="border border-gray-300 rounded-lg overflow-hidden shadow-lg">
           <PDFViewer width="100%" height="600px" className="border-0">
-            {renderDocument()}
+            {document}
           </PDFViewer>
         </div>
       )}
