@@ -1,9 +1,4 @@
-import {
-  Invoice,
-  RateConfirmation,
-  PurchaseOrder,
-  Company,
-} from "../types";
+import { Invoice, RateConfirmation, PurchaseOrder, Company } from "../types";
 
 // Sample company data
 export const sampleCompanyFrom: Company = {
